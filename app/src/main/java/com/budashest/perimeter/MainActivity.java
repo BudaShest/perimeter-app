@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC не поддерживается на этом устройстве", Toast.LENGTH_LONG).show();
             addToLog("Ошибка: NFC не поддерживается");
-            finish();
+//            finish();
             return;
         }
 

@@ -14,35 +14,41 @@ class ScheduleRepository {
             if (response.isSuccessful) {
                 val apiResponse = response.body()
 
-                // ★★★ БЕЗОПАСНАЯ ПРОВЕРКА ВСЕХ ПОЛЕЙ ★★★
                 if (apiResponse?.success == true) {
-                    // Безопасно извлекаем schedules
                     val schedules = apiResponse.schedules ?: emptyList()
 
                     Log.d("API", "✅ УСПЕХ! Получено обходов: ${schedules.size}")
 
-                    // Безопасно логируем каждый обход
-                    schedules.forEach { schedule ->
-                        val pointsCount = schedule.route?.points?.size ?: 0
-                        Log.d("API", "   📋 ${schedule.name ?: "Без названия"} - $pointsCount точек")
+                    // ★★★ ЛОГИРУЕМ С ИСПРАВЛЕННОЙ СТРУКТУРОЙ ★★★
+                    schedules.forEachIndexed { index, schedule ->
+                        Log.d("API", "--- Обход #${index + 1} ---")
+                        Log.d("API", "ID: ${schedule.id}")
+                        Log.d("API", "Название: ${schedule.name}")
+                        Log.d("API", "Время: ${schedule.timeRange}")
+                        Log.d("API", "Маршрут: ${schedule.route?.name}")
+                        Log.d("API", "Количество точек: ${schedule.points?.size ?: 0}")
 
-                        // Безопасно логируем точки
-                        schedule.route?.points?.forEach { point ->
-                            Log.d("API", "      • ${point.stepOrder}. ${point.name ?: "Без названия"} (UID: ${point.uid ?: "Без UID"})")
+                        // Логируем точки
+                        schedule.points?.forEachIndexed { pointIndex, point ->
+                            Log.d("API", "   Точка #${pointIndex + 1}:")
+                            Log.d("API", "      ID: ${point.id}")
+                            Log.d("API", "      Название: ${point.name}")
+                            Log.d("API", "      UID: ${point.uid}")
+                            Log.d("API", "      StepOrder: ${point.getStepOrder()}")
                         }
                     }
 
                     schedules
                 } else {
-                    Log.e("API", "❌ API вернуло success=false или null")
+                    Log.e("API", "❌ API вернуло success=false")
                     emptyList()
                 }
             } else {
-                Log.e("API", "❌ HTTP ошибка: ${response.code()} - ${response.message()}")
+                Log.e("API", "❌ HTTP ошибка: ${response.code()}")
                 emptyList()
             }
         } catch (e: Exception) {
-            Log.e("API", "❌ Ошибка подключения: ${e.message}")
+            Log.e("API", "❌ Ошибка: ${e.message}")
             e.printStackTrace()
             emptyList()
         }

@@ -2,7 +2,7 @@ package com.budashest.patrolapp.data
 
 import com.google.gson.annotations.SerializedName
 
-// ★★★ БЕЗОПАСНЫЕ МОДЕЛИ С NULLABLE ПОЛЯМИ ★★★
+// ★★★ ИСПРАВЛЕННЫЕ МОДЕЛИ ПО РЕАЛЬНОМУ JSON ★★★
 data class ApiResponse(
     @SerializedName("success") val success: Boolean? = false,
     @SerializedName("date") val date: String? = "",
@@ -15,14 +15,35 @@ data class Schedule(
     @SerializedName("id") val id: Int? = 0,
     @SerializedName("name") val name: String? = "",
     @SerializedName("time_range") val timeRange: String? = "",
-    @SerializedName("route") val route: Route? = null
-)
+
+    // ★★★ ИСПРАВЛЕНИЕ: route и points НА ОДНОМ УРОВНЕ ★★★
+    @SerializedName("route") val route: Route? = null,
+    @SerializedName("points") val points: List<Point>? = emptyList()
+) {
+    // ★★★ БЕЗОПАСНОЕ ПОЛУЧЕНИЕ ТОЧЕК ★★★
+    fun getSafePoints(): List<Point> {
+        return points?.mapNotNull { point ->
+            try {
+                Point(
+                    id = point.id ?: 0,
+                    name = point.name ?: "Без названия",
+                    uid = point.uid ?: "Без UID",
+                    lat = point.lat,
+                    lon = point.lon,
+                    pivot = point.pivot
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }?.sortedBy { it.getStepOrder() } ?: emptyList()
+    }
+}
 
 data class Route(
     @SerializedName("id") val id: Int? = 0,
     @SerializedName("name") val name: String? = "",
-    @SerializedName("area") val area: String? = "",
-    @SerializedName("points") val points: List<Point>? = emptyList()
+    @SerializedName("area") val area: String? = ""
+    // ★★★ УБИРАЕМ points ОТСЮДА - они в Schedule ★★★
 )
 
 data class Point(
@@ -33,9 +54,10 @@ data class Point(
     @SerializedName("lon") val lon: Double? = null,
     @SerializedName("pivot") val pivot: PointPivot? = null
 ) {
-    // ★★★ БЕЗОПАСНОЕ ПОЛУЧЕНИЕ stepOrder ★★★
-    val stepOrder: Int
-        get() = pivot?.stepOrder ?: 0
+    // ★★★ ПОЛУЧЕНИЕ stepOrder ИЗ PIVOT ★★★
+    fun getStepOrder(): Int {
+        return pivot?.stepOrder ?: 0
+    }
 }
 
 data class PointPivot(

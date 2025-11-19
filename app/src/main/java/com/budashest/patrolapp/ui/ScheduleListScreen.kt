@@ -104,7 +104,8 @@ fun ScheduleCard(
             Text(text = schedule.name ?: "Без названия")
             Text(text = "Время: ${schedule.timeRange ?: "Не указано"}")
             Text(text = "Маршрут: ${schedule.route?.name ?: "Без названия"}")
-            Text(text = "Точек: ${schedule.route?.points?.size ?: 0}")
+            // ★★★ ИСПОЛЬЗУЕМ points ИЗ Schedule ★★★
+            Text(text = "Точек: ${schedule.points?.size ?: 0}")
         }
     }
 }

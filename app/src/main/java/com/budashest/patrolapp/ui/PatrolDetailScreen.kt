@@ -24,8 +24,11 @@ fun PatrolDetailScreen(
     schedule: Schedule,
     onBackClick: () -> Unit
 ) {
+    // ★★★ ИСПОЛЬЗУЕМ БЕЗОПАСНЫЕ ТОЧКИ ИЗ Schedule ★★★
+    val points = schedule.getSafePoints()
+
     Column(modifier = Modifier.fillMaxSize()) {
-        // Заголовок с кнопкой назад
+        // Заголовок
         Row(modifier = Modifier.padding(16.dp)) {
             IconButton(onClick = onBackClick) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
@@ -42,7 +45,7 @@ fun PatrolDetailScreen(
                 Text(text = "Время: ${schedule.timeRange ?: "Не указано"}")
                 Text(text = "Маршрут: ${schedule.route?.name ?: "Без названия"}")
                 Text(text = "Зона: ${schedule.route?.area ?: "Не указана"}")
-                Text(text = "Количество точек: ${schedule.route?.points?.size ?: 0}")
+                Text(text = "Количество точек: ${points.size}")
             }
         }
 
@@ -51,9 +54,6 @@ fun PatrolDetailScreen(
             text = "Точки обхода:",
             modifier = Modifier.padding(16.dp)
         )
-
-        // ★★★ БЕЗОПАСНЫЙ СПИСОК ТОЧЕК ★★★
-        val points = schedule.route?.points ?: emptyList()
 
         LazyColumn(modifier = Modifier.padding(16.dp)) {
             items(points) { point ->
@@ -67,9 +67,8 @@ fun PatrolDetailScreen(
 fun PointCard(point: Point) {
     Card(modifier = Modifier.padding(8.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = point.name ?: "Без названия")
+            Text(text = "${point.getStepOrder()}. ${point.name ?: "Без названия"}")
             Text(text = "UID: ${point.uid ?: "Без UID"}")
-            Text(text = "Порядок: ${point.stepOrder}")
         }
     }
 }
